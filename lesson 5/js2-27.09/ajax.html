@@ -1,0 +1,42 @@
+<html>
+  <head>
+    <title>Ajax</title>
+    <script>
+      window.onload = function() {
+        var page = 1;
+        var $button = document.getElementById('send');
+        var $response = document.getElementById('response');
+
+        $button.addEventListener('click', function(event) {
+          // Создание объекта запроса
+          var xhr = new XMLHttpRequest();
+          // Настройка запроса
+          xhr.open('GET', 'http://localhost:3000/users?_limit=10&_page=' + page);
+          // Отправка запроса
+          xhr.send();
+          
+          // Подписываемся на изменение состояния
+          xhr.onreadystatechange = function() {
+            if(xhr.readyState === XMLHttpRequest.DONE) {
+              if(xhr.status === 200) {
+                page++;
+                var users = JSON.parse(xhr.responseText);
+                users.forEach(function(user) {
+                  var $li = document.createElement('li');
+                  $li.classList.add('class');
+                  $li.textContent = 'Name: ' + user.firstName
+                  + ' Surname: ' + user.lastName;
+                  $response.appendChild($li);
+                });
+              }
+            }
+          }
+        });
+      }
+    </script>
+  </head>
+  <body>
+    <ol id="response"></ol>
+    <button id="send">Load more</button>
+  </body>
+</html>

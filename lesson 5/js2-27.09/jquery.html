@@ -1,0 +1,82 @@
+<html>
+  <head>
+    <title>jQuery</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <style>
+      html, body {
+        padding: 0;
+        margin: 0;
+      }
+
+      .panel {
+        height: 300px;
+        width: 300px;
+        background-color:cadetblue;
+        margin: 0 auto;
+      }
+      .action {
+        margin: 0 auto;
+        width: 70px;
+        height: 30px;
+        background-color: brown;
+        display: block;
+        color: #fff;
+      }
+      .box {
+        width: 300px;
+        height: 300px;
+        background-color: aquamarine;
+      }
+    </style>
+    <script>
+      (function($) {
+        $(function() {
+          $('#button').on('click', function(event) {
+            $('.panel').slideToggle(3000, function() {
+              if($(event.target).text() === 'UP') {
+                $(event.target).text('DOWN');
+              } else {
+                $(event.target).text('UP');
+              }
+            });
+          });
+          $('#list').on('click', 'li', function() {
+            console.log($(this).text());
+          });
+          $('#send').on('click', function() {
+            $.ajax({
+              url: 'http://localhost:3000/users',
+              type: 'GET',
+              success: function(users) {
+                console.log('Hello', users);
+              }
+            });
+          });
+          $('#animation').on('click', function() {
+            $('#box').animate({
+              width: '500px',
+              marginTop: '100px'
+            }, 5000, function() {
+              console.log('Animation completed');
+            })
+          });
+        });
+      })(jQuery);
+    </script>
+  </head>
+  <body>
+    <div id="wrapper">
+      <div class="panel"></div>
+      <button id="button" class="action">UP</button>
+    </div>
+    <ul id="list">
+      <li>Mongo</li>
+      <li>MySQL</li>
+      <li>PostgreSQL</li>
+      <li>Redis</li>
+    </ul>
+    <button id="send">Send</button>
+    <div class="box" id="box"></div>
+    <button id="animation">Animation</button>
+  </body>
+</html>

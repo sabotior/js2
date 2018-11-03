@@ -1,0 +1,35 @@
+1. Добавление товара в корзину
+POST /cart
+{
+  "name": "Трусы",
+  "quantity": 100,
+  "amount": 100
+}
+2. Удалять товар из корзины
+DELETE /cart/<id>
+3. Менять количество товаров в корзине
+PATCH /cart/<id>
+{ "quantity": 101 }
+4. Очистить корзину
+DELETE /cart/<id> на все товары в корзине
+5. Получение содержимого корзины
+GET /cart
+6. Получение списка товаров со склада
+GET /goods
+
+C - Create  - POST
+R - Read    - GET
+U - Update  - PATCH,PUT
+D - Delete  - DELETE
+-----------------------------
+Контракт для ДЗ
+1. Получение отзывов
+GET /reviews
+2. Добавление отзыва
+POST /reviews
+{ "name": "Vasya Pupkin", "message": "Все плохо", "rate: 5, "approved": 0 }
+3. Удаление отзыва
+DELETE /reviews/<id>
+4. Одобрение отзыва
+PATCH /reviews/<id>
+{ "approved": 1 }
