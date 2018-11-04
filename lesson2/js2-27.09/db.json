@@ -1,0 +1,36 @@
+{
+    "users": [
+        {
+            "id": 1,
+            "firstName": "Vasya",
+            "lastName": "Pupkin",
+            "age": 46
+        },
+        {
+            "id": 2,
+            "firstName": "Петя",
+            "lastName": "Иванов",
+            "age": 23
+        },
+        {
+            "id": 3,
+            "firstName": "Коля",
+            "lastName": "петров",
+            "age": 43
+        }
+    ],
+    "posts": [
+        {
+            "id": 1,
+            "firstName": "Коля",
+            "lastName": "петров",
+            "age": 43
+        },
+        {
+            "id": 2,
+            "firstName": "Коля",
+            "lastName": "петров",
+            "age": 43
+        }
+    ]
+}

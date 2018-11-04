@@ -1,0 +1,17 @@
+[
+    {
+        "firstName": "Vasya",
+        "lastName": "Pupkin",
+        "age": 46
+    },
+    {
+        "firstName": "Петя",
+        "lastName": "Иванов",
+        "age": 23
+    },
+    {
+        "firstName": "Коля",
+        "lastName": "петров",
+        "age": 43
+    }
+]

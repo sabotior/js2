@@ -1,0 +1,54 @@
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Ajax</title>
+    <script>
+        window.onload = function () {
+            var $button = document.getElementById('send'); //получили кнопку
+            var $response = document.getElementById('response'); //получили узел//response - ответ // называют для содержимого ответов с сервера
+            //переменная с долларом общепринята для тех, в которых лежит узел dom
+
+            $button.addEventListener('click', function (event) { //навесили слушатель на событие клик
+                //подписались на клик по кнопке
+                var xhr = new XMLHttpRequest(); //специальный объект для отправки ajax запросов
+                //создаем экземпляр класса
+                //сокращенно XmlHttpRequest - xhr - принято для читаемости
+                //состояние запроса UNSENT
+
+                xhr.open('GET', 'http://127.0.0.1:8080/user.json')
+                // метод которым хотим отправить запрос GET POST, адрес куда отправить запрос
+                //настроили
+                //состояние запроса OPENED
+
+                xhr.send();
+                //после этого запрос отправится
+                //состояние запроса LOADING
+
+                //чтобы поймать что в запросе отображется мы используем событие смены статуса запроса
+                xhr.onreadystatechange = function () { //подписываемся на изменение состояния (состояние меняется на каждом шаге)
+                    if (xhr.readyState === XMLHttpRequest.DONE) { //состояние запроса DONE - когда всё получил
+                        if(xhr.status === 200) {
+                            var users = JSON.parse(xhr.responseText);//переделываем полученный текст в масив объектов
+                            console.log(xhr.responseText);
+                            console.log(users);
+                            users.forEach(function(user) {
+                                $response.innerHTML += user.firstName + ' ' + user.lastName + ' возраст ' + user.age + '<br>'; //вставляем ответ в нужный тег
+                            //$response.innerText = xhr.responseText; //вставляем ответ в нужный тег   
+                            });
+                           
+                        }
+                    }
+                }
+
+            });
+        }
+    </script>
+</head>
+
+<body>
+    <button id="send">Send</button>
+    <div id="response"></div><!-- не использовать answer -->
+</body>
+
+</html>
