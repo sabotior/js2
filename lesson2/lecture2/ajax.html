@@ -1,0 +1,48 @@
+<!--
+  npm i -g node-static установка сервера
+  static ./ запуск сервера в текущей папке
+-->
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Ajax</title>
+  <script>
+    window.onload = function () {
+      var $button = document.getElementById('send');//находим элеемент (переменная с $ в начале - принято, чтобы хранить узел dom)
+      var $response = document.getElementById('response');//находим элеемент 
+
+      $button.addEventListener('click', function (event) {//подписываемся на клик по этой кнопке
+        var xhr = new XMLHttpRequest();//создание объекта запроса (для того чтобы отправить ajax запрос, в JS есть специальный класс; создаем экземпляр этого класса, принято называть xhr)//состояние UNSENT
+
+        xhr.open('GET', 'http://127.0.0.1:8080/text.txt')//подготовка (настройка) запроса//первым параметром метод отправки запроса // вторым адрес на который отправить этот запрос//состояние OPENED
+
+        xhr.send();//отправка запроса (запрос файла/текста)//если открыть адрес в браузере, он сам сделает этот запрос и отобразит результат//состояние LOADING
+        //затем состояние HEADERS_RECEIVED
+        //после того как всё получил, состояние DONE
+
+        //подписка на событие прихода ответа - onradystatechange - событие смены статуса запроса
+        xhr.onreadystatechange = function () {//подписываемся на изменение состояния 
+          if (xhr.readyState === XMLHttpRequest.DONE) {//состояние запроса хранится в переменной readyState //XMLHttpRequest.DONE === 4   
+            if (xhr.status === 200) {//проверка статуса ответа
+              $response.innerText = xhr.responseText;//вставляем текст ответа сервера в элемент//обязательно дождавшись ответа сервера
+            }
+          }
+        }
+      });
+    }
+  </script>
+</head>
+
+<body>
+  <button id="send">Send</button>
+  <div id="response"></div><!--ответ-->
+</body>
+
+</html>

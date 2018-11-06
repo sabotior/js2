@@ -1,0 +1,50 @@
+<html>
+  <head>
+    <title>Cart</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script>
+      function renderGoodList() {//прорисовка
+        $('#goods').empty();//очистка
+        $.ajax({
+          url: 'http://localhost:3000/goods',//на какой адрес отправляем запрос
+          type: 'GET',
+          success: function(goods) {//подписываемся на результат запроса
+          //начинаем генерировать товары
+          var $ul = $('<ul />');//создаем список, вторым пораметром можно указать атрибуты
+
+          goods.forEach(function(good) {//перебтраем товары
+            var $li = $('<li />', {//создаем товар
+              text: good.name,
+            });
+            var $button = $('<button />', {//создаем кнопку с параметрами товара в атрибутах
+              text: 'Купить',
+              
+              'data-id': good.id,
+              'data-name': good.name,
+              'data-amount': good.amount,
+            });
+            $li.append($button);//вставляем кнопку в товар
+            $ul.append($li);//вставляем товар в список
+          });
+          $('#goods').append($ul);//вставляем список в блок goods
+          }
+        });
+      }
+
+
+
+      (function($) {
+        $(function() {
+
+        });
+      })(jQuery);
+    </script>
+  </head>
+  <body>
+    <div id="goods"></div>
+    <div>
+      <h3>Cart</h3>
+      <div id="cart"></div>
+    </div>
+  </body>
+</html>
