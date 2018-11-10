@@ -49,29 +49,41 @@
               text: good.name + ' (' + good.quantity + ')',
             });
             var $button = $('<button />', { //создаем кнопку с параметрами товара в атрибутах
-              text: 'Уменьшить',
+              text: '-',
               class: 'remove',
               'data-id': good.id,
               'data-name': good.name,
               'data-amount': good.amount,
               'data-quantity': good.quantity,
             });
+
+            //////////////////ДЗ - кнопка добавить товар
+            var $buttonAddGood = $('<button />', { //создаем кнопку с параметрами товара в атрибутах
+              text: '+',
+              class: 'add-good',
+              'data-id': good.id,
+              'data-quantity': good.quantity,
+            });
+
             //////////////////ДЗ - кнопка удалить товар
             var $buttonRemoveGood = $('<button />', { //создаем кнопку с параметрами товара в атрибутах
               text: 'Удалить',
               class: 'remove-good',
               'data-id': good.id,
-              //'data-name': good.name,
-              // 'data-amount': good.amount,
-              // 'data-quantity': good.quantity,
             });
-            ////////////////////////
-            total += good.amount * good.quantity; //цена*колличество
-            $li.append($button); //вставляем кнопку в товар
-            ////////////////////ДЗ
-            $li.append($buttonRemoveGood); //вставляем кнопку в товар
-            ////////////////////////
-            $ul.append($li); //вставляем товар в список
+
+            //Стоимость = цена * колличество
+            total += good.amount * good.quantity;
+
+            //вставляем кнопку "уменьшить" в товар
+            $li.append($button);
+            ////////////////////ДЗ - вставляем кнопку "добавить" в товар
+            $li.append($buttonAddGood);
+            ////////////////////ДЗ - вставляем кнопку "удалить" в товар
+            $li.append($buttonRemoveGood);
+
+            //вставляем товар в список
+            $ul.append($li);
           });
 
           $('#cart').append($ul); //вставляем список в блок goods
@@ -97,33 +109,7 @@
         renderGoodList();
         renderCart();
 
-
-        //кнопка очистить корзину
-        $('#cart').on('click', '.clear', function () { //подписываемся на клик по кнопке clear
-          $('#cart .remove').each(function (idx, value) { //перебераем все товары в корзине
-            var good = $(value).data();
-            $.ajax({
-              url: 'http://localhost:3000/cart/' + good.id,
-              type: 'DELETE',
-            });
-            $('#cart').empty();
-          });
-        });
-
-        ///////////////////////кнопка удалить товар   
-        $('#cart').on('click', '.remove-good', function () { //подписываемся на клик по кнопке remove-good
-          //получаем товар
-          var removeGood = $(this).data();
-          $.ajax({
-            url: 'http://localhost:3000/cart/' + removeGood.id,
-            type: 'DELETE',
-            success: function () {
-              renderCart();
-            }
-          });
-        });
-        ////////////////////////////
-
+        //////////////////////////// кнопка уменьшить товар в корзине
         $('#cart').on('click', '.remove', function () { //подписываемся на клик по кнопке remove
           //получаем товар
           var good = $(this).data();
@@ -150,9 +136,55 @@
               }
             })
           }
-
         });
 
+        //////////////////////////// кнопка добавить товар в корзине
+        $('#cart').on('click', '.add-good', function () { //подписываемся на клик по кнопке remove
+          //получаем товар
+          var addGood = $(this).data();
+
+         
+            var goodFromCart = $('#cart .add-good[data-id="' + addGood.id + '"]').data(); //получим товар на который кликнули
+            $.ajax({ //отправляем пост запрос, чтобы на сервере создать товары в корзине// в файл db.json будет записан товар в массив cart
+              url: 'http://localhost:3000/cart/' + addGood.id, //на какой адрес отправляем запрос
+              type: 'PATCH', //тип запроса
+              data: {
+                quantity: +goodFromCart.quantity + 1
+              }, //отправляемые данные на сервер
+              success: function () {
+                //console.log('Response');//проверяем что ответ пришел
+                renderCart(); //перерисовываем корзину
+              }
+            })
+          
+        });
+
+        ///////////////////////кнопка удалить товар в корзине
+        $('#cart').on('click', '.remove-good', function () { //подписываемся на клик по кнопке remove-good
+          //получаем товар
+          var removeGood = $(this).data();
+          $.ajax({
+            url: 'http://localhost:3000/cart/' + removeGood.id,
+            type: 'DELETE',
+            success: function () {
+              renderCart();
+            }
+          });
+        });
+
+        //кнопка очистить в корзине
+        $('#cart').on('click', '.clear', function () { //подписываемся на клик по кнопке clear
+          $('#cart .remove').each(function (idx, value) { //перебераем все товары в корзине
+            var good = $(value).data();
+            $.ajax({
+              url: 'http://localhost:3000/cart/' + good.id,
+              type: 'DELETE',
+            });
+            $('#cart').empty();
+          });
+        });
+
+          //Кнопка купить в листинге
         // $('.buy').on('click',function() {//подписываемся на клики по кнопкам
         //не сработает, потому что событие навешивается рано - до того как будет получен ответ с json-servera и эти кнопки прорисуются в dom
         // console.log('Clicked');
@@ -189,7 +221,7 @@
           }
 
         });
-      });
+      });   
     })(jQuery);
   </script>
 </head>
