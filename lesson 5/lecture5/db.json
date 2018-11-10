@@ -1,10 +1,22 @@
 {
   "cart": [
     {
+      "amount": "150",
+      "name": "Апельсины",
+      "id": "2",
+      "quantity": "9"
+    },
+    {
+      "amount": "200",
+      "name": "Груши",
+      "id": "3",
+      "quantity": "9"
+    },
+    {
       "amount": "100",
       "name": "Яблоки",
       "id": "1",
-      "quantity": "7"
+      "quantity": "6"
     }
   ],
   "goods": [

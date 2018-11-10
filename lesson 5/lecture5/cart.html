@@ -49,27 +49,44 @@
               text: good.name + ' (' + good.quantity + ')',
             });
             var $button = $('<button />', { //создаем кнопку с параметрами товара в атрибутах
-              text: 'Удалить',
+              text: 'Уменьшить',
               class: 'remove',
               'data-id': good.id,
               'data-name': good.name,
               'data-amount': good.amount,
               'data-quantity': good.quantity,
             });
+            //////////////////ДЗ - кнопка удалить товар
+            var $buttonRemoveGood = $('<button />', { //создаем кнопку с параметрами товара в атрибутах
+              text: 'Удалить',
+              class: 'remove-good',
+              'data-id': good.id,
+              //'data-name': good.name,
+              // 'data-amount': good.amount,
+              // 'data-quantity': good.quantity,
+            });
+            ////////////////////////
             total += good.amount * good.quantity; //цена*колличество
             $li.append($button); //вставляем кнопку в товар
+            ////////////////////ДЗ
+            $li.append($buttonRemoveGood); //вставляем кнопку в товар
+            ////////////////////////
             $ul.append($li); //вставляем товар в список
           });
+
           $('#cart').append($ul); //вставляем список в блок goods
+
           $('#cart').append($('<span />', {
             text: 'Total: ' + total + 'руб.'
           }));
+
           $('#cart').append(
             $('<button />', {
               text: 'Очистить',
               class: 'clear',
             }),
           );
+
         }
       });
     }
@@ -79,19 +96,33 @@
       $(function () {
         renderGoodList();
         renderCart();
+
+
         //кнопка очистить корзину
-        $('#cart').on('click', '.clear', function() {//подписываемся на клик по кнопке clear
-          $('#cart .remove').each(function(idx, value) {//перебераем все товары в корзине
+        $('#cart').on('click', '.clear', function () { //подписываемся на клик по кнопке clear
+          $('#cart .remove').each(function (idx, value) { //перебераем все товары в корзине
             var good = $(value).data();
             $.ajax({
               url: 'http://localhost:3000/cart/' + good.id,
-              type: 'DELETE',              
+              type: 'DELETE',
             });
             $('#cart').empty();
           });
         });
 
-
+        ///////////////////////кнопка удалить товар   
+        $('#cart').on('click', '.remove-good', function () { //подписываемся на клик по кнопке remove-good
+          //получаем товар
+          var removeGood = $(this).data();
+          $.ajax({
+            url: 'http://localhost:3000/cart/' + removeGood.id,
+            type: 'DELETE',
+            success: function () {
+              renderCart();
+            }
+          });
+        });
+        ////////////////////////////
 
         $('#cart').on('click', '.remove', function () { //подписываемся на клик по кнопке remove
           //получаем товар
