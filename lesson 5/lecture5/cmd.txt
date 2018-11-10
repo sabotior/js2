@@ -1,0 +1,3 @@
+# Запуск:
+static .
+json-server db.json

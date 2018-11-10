@@ -1,50 +1,174 @@
 <html>
-  <head>
-    <title>Cart</title>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    <script>
-      function renderGoodList() {//прорисовка
-        $('#goods').empty();//очистка
-        $.ajax({
-          url: 'http://localhost:3000/goods',//на какой адрес отправляем запрос
-          type: 'GET',
-          success: function(goods) {//подписываемся на результат запроса
-          //начинаем генерировать товары
-          var $ul = $('<ul />');//создаем список, вторым пораметром можно указать атрибуты
 
-          goods.forEach(function(good) {//перебтраем товары
-            var $li = $('<li />', {//создаем товар
+<head>
+  <title>Cart</title>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script>
+    //функции
+    function renderGoodList() { //прорисовка товаров на странице
+      $('#goods').empty(); //очистка
+      $.ajax({
+        url: 'http://localhost:3000/goods', //на какой адрес отправляем запрос
+        type: 'GET', //тип запроса
+        success: function (goods) { //подписываемся на результат запроса
+          //начинаем генерировать товары
+          var $ul = $('<ul />'); //создаем список, вторым пораметром можно указать атрибуты
+
+          goods.forEach(function (good) { //перебтраем товары
+            var $li = $('<li />', { //создаем товар
               text: good.name,
             });
-            var $button = $('<button />', {//создаем кнопку с параметрами товара в атрибутах
+            var $button = $('<button />', { //создаем кнопку с параметрами товара в атрибутах
               text: 'Купить',
-              
+              class: 'buy',
               'data-id': good.id,
               'data-name': good.name,
               'data-amount': good.amount,
             });
-            $li.append($button);//вставляем кнопку в товар
-            $ul.append($li);//вставляем товар в список
+            $li.append($button); //вставляем кнопку в товар
+            $ul.append($li); //вставляем товар в список
           });
-          $('#goods').append($ul);//вставляем список в блок goods
+          $('#goods').append($ul); //вставляем список в блок goods
+        }
+      });
+    }
+
+    function renderCart() { //прорисовка корзины
+      $('#cart').empty(); //очистка
+      $.ajax({
+        url: 'http://localhost:3000/cart', //на какой адрес отправляем запрос
+        type: 'GET', //тип запроса
+        success: function (goods) { //подписываемся на результат запроса
+          //начинаем генерировать товары
+          var $ul = $('<ul />'); //создаем список, вторым пораметром можно указать атрибуты
+          var total = 0; //стоимость товаров в корзине
+
+          goods.forEach(function (good) { //перебераем товары из полученного с сервера объектов
+            var $li = $('<li />', { //создаем товар
+              text: good.name + ' (' + good.quantity + ')',
+            });
+            var $button = $('<button />', { //создаем кнопку с параметрами товара в атрибутах
+              text: 'Удалить',
+              class: 'remove',
+              'data-id': good.id,
+              'data-name': good.name,
+              'data-amount': good.amount,
+              'data-quantity': good.quantity,
+            });
+            total += good.amount * good.quantity; //цена*колличество
+            $li.append($button); //вставляем кнопку в товар
+            $ul.append($li); //вставляем товар в список
+          });
+          $('#cart').append($ul); //вставляем список в блок goods
+          $('#cart').append($('<span />', {
+            text: 'Total: ' + total + 'руб.'
+          }));
+          $('#cart').append(
+            $('<button />', {
+              text: 'Очистить',
+              class: 'clear',
+            }),
+          );
+        }
+      });
+    }
+
+    //запуск функций
+    (function ($) {
+      $(function () {
+        renderGoodList();
+        renderCart();
+        //кнопка очистить корзину
+        $('#cart').on('click', '.clear', function() {//подписываемся на клик по кнопке clear
+          $('#cart .remove').each(function(idx, value) {//перебераем все товары в корзине
+            var good = $(value).data();
+            $.ajax({
+              url: 'http://localhost:3000/cart/' + good.id,
+              type: 'DELETE',              
+            });
+            $('#cart').empty();
+          });
+        });
+
+
+
+        $('#cart').on('click', '.remove', function () { //подписываемся на клик по кнопке remove
+          //получаем товар
+          var good = $(this).data();
+
+          if (+good.quantity === 1) {
+            $.ajax({
+              url: 'http://localhost:3000/cart/' + good.id,
+              type: 'DELETE',
+              success: function () {
+                renderCart();
+              }
+            })
+          } else {
+            var goodFromCart = $('#cart .remove[data-id="' + good.id + '"]').data(); //получим товар на который кликнули
+            $.ajax({ //отправляем пост запрос, чтобы на сервере создать товары в корзине// в файл db.json будет записан товар в массив cart
+              url: 'http://localhost:3000/cart/' + good.id, //на какой адрес отправляем запрос
+              type: 'PATCH', //тип запроса
+              data: {
+                quantity: +goodFromCart.quantity - 1
+              }, //отправляемые данные на сервер
+              success: function () {
+                //console.log('Response');//проверяем что ответ пришел
+                renderCart(); //перерисовываем корзину
+              }
+            })
           }
+
         });
-      }
 
+        // $('.buy').on('click',function() {//подписываемся на клики по кнопкам
+        //не сработает, потому что событие навешивается рано - до того как будет получен ответ с json-servera и эти кнопки прорисуются в dom
+        // console.log('Clicked');
+        // })
+        $('#goods').on('click', '.buy', function () { //используем всплытие - подписываемся на родителя и слушаем все всплытия элементов         
+          // console.log('Clicked', $(this).data()); //достаем из кнопки data //проверка
+          var good = $(this).data();
+          good.quantity = 1; //добавлем количество
 
+          //проверяем наличие товара в корзине
+          if ($('#cart .remove[data-id="' + good.id + '"]').length) { //если есть кнопка с классом remove и атрибутом data-id, длина возвращаемого объекта
+            var goodFromCart = $('#cart .remove[data-id="' + good.id + '"]').data(); //получим товар на который кликнули
+            $.ajax({ //отправляем пост запрос, чтобы на сервере создать товары в корзине// в файл db.json будет записан товар в массив cart
+              url: 'http://localhost:3000/cart/' + good.id, //на какой адрес отправляем запрос
+              type: 'PATCH', //тип запроса
+              data: {
+                quantity: +goodFromCart.quantity + 1
+              }, //отправляемые данные на сервер
+              success: function () {
+                //console.log('Response');//проверяем что ответ пришел
+                renderCart(); //перерисовываем корзину
+              }
+            })
+          } else {
+            $.ajax({ //отправляем пост запрос, чтобы на сервере создать товары в корзине// в файл db.json будет записан товар в массив cart
+              url: 'http://localhost:3000/cart', //на какой адрес отправляем запрос
+              type: 'POST', //тип запроса
+              data: good, //отправляем данные на сервер
+              success: function () {
+                //console.log('Response');//проверяем что ответ пришел
+                renderCart(); //перерисовываем корзину
+              }
+            })
+          }
 
-      (function($) {
-        $(function() {
-          renderGoodList();
         });
-      })(jQuery);
-    </script>
-  </head>
-  <body>
-    <div id="goods"></div>
-    <div>
-      <h3>Cart</h3>
-      <div id="cart"></div>
-    </div>
-  </body>
+      });
+    })(jQuery);
+  </script>
+</head>
+
+<body>
+  <div id="goods"></div>
+  <div>
+    <h3>Cart</h3>
+    <div id="cart"></div>
+  </div>
+</body>
+
 </html>
