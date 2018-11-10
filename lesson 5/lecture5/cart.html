@@ -35,7 +35,8 @@
     }
 
     function renderCart() { //прорисовка корзины
-      $('#cart').empty(); //очистка
+      $('#cart').empty(); //очистка блока корзины
+      //получаем список товаров в корзине, с сервера
       $.ajax({
         url: 'http://localhost:3000/cart', //на какой адрес отправляем запрос
         type: 'GET', //тип запроса
@@ -43,21 +44,26 @@
           //начинаем генерировать товары
           var $ul = $('<ul />'); //создаем список, вторым пораметром можно указать атрибуты
           var total = 0; //стоимость товаров в корзине
+          var $h3 = $('<h3 />', {
+            text: 'Корзина'
+          });
 
           goods.forEach(function (good) { //перебераем товары из полученного с сервера объектов
             var $li = $('<li />', { //создаем товар
               text: good.name + ' (' + good.quantity + ')',
             });
-            var $button = $('<button />', { //создаем кнопку с параметрами товара в атрибутах
+
+            //Кнопка уменьшить товар
+            var $buttonReduceGood = $('<button />', { //создаем кнопку с параметрами товара в атрибутах
               text: '-',
-              class: 'remove',
+              class: 'reduce-good',
               'data-id': good.id,
               'data-name': good.name,
               'data-amount': good.amount,
               'data-quantity': good.quantity,
             });
 
-            //////////////////ДЗ - кнопка добавить товар
+            //Кнопка добавить товар
             var $buttonAddGood = $('<button />', { //создаем кнопку с параметрами товара в атрибутах
               text: '+',
               class: 'add-good',
@@ -65,7 +71,7 @@
               'data-quantity': good.quantity,
             });
 
-            //////////////////ДЗ - кнопка удалить товар
+            //Кнопка удалить товар
             var $buttonRemoveGood = $('<button />', { //создаем кнопку с параметрами товара в атрибутах
               text: 'Удалить',
               class: 'remove-good',
@@ -76,28 +82,38 @@
             total += good.amount * good.quantity;
 
             //вставляем кнопку "уменьшить" в товар
-            $li.append($button);
-            ////////////////////ДЗ - вставляем кнопку "добавить" в товар
+            $li.append($buttonReduceGood);
+            //вставляем кнопку "добавить" в товар
             $li.append($buttonAddGood);
-            ////////////////////ДЗ - вставляем кнопку "удалить" в товар
+            //вставляем кнопку "удалить" в товар
             $li.append($buttonRemoveGood);
 
             //вставляем товар в список
             $ul.append($li);
           });
+          
+          //вставляем заголовок
+          if (total > 0) {
+            $('#cart').append($h3);
+          }
 
-          $('#cart').append($ul); //вставляем список в блок goods
+          //вставляем список в блок goods
+          $('#cart').append($ul);
 
-          $('#cart').append($('<span />', {
-            text: 'Total: ' + total + 'руб.'
-          }));
+          if (total > 0) {
+            //Вставляем тотал в корзину
+            $('#cart').append($('<span />', {
+              text: 'Total: ' + total + 'руб.'
+            }));
 
-          $('#cart').append(
-            $('<button />', {
-              text: 'Очистить',
-              class: 'clear',
-            }),
-          );
+            //Вставляем кнопку очитить в корзину
+            $('#cart').append(
+              $('<button />', {
+                text: 'Очистить',
+                class: 'clear',
+              }),
+            );
+          }
 
         }
       });
@@ -110,7 +126,7 @@
         renderCart();
 
         //////////////////////////// кнопка уменьшить товар в корзине
-        $('#cart').on('click', '.remove', function () { //подписываемся на клик по кнопке remove
+        $('#cart').on('click', '.reduce-good', function () { //подписываемся на клик по кнопке reduce-good
           //получаем товар
           var good = $(this).data();
 
@@ -121,9 +137,9 @@
               success: function () {
                 renderCart();
               }
-            })
+            });
           } else {
-            var goodFromCart = $('#cart .remove[data-id="' + good.id + '"]').data(); //получим товар на который кликнули
+            var goodFromCart = $('#cart .reduce-good[data-id="' + good.id + '"]').data(); //получим товар на который кликнули
             $.ajax({ //отправляем пост запрос, чтобы на сервере создать товары в корзине// в файл db.json будет записан товар в массив cart
               url: 'http://localhost:3000/cart/' + good.id, //на какой адрес отправляем запрос
               type: 'PATCH', //тип запроса
@@ -143,20 +159,18 @@
           //получаем товар
           var addGood = $(this).data();
 
-         
-            var goodFromCart = $('#cart .add-good[data-id="' + addGood.id + '"]').data(); //получим товар на который кликнули
-            $.ajax({ //отправляем пост запрос, чтобы на сервере создать товары в корзине// в файл db.json будет записан товар в массив cart
-              url: 'http://localhost:3000/cart/' + addGood.id, //на какой адрес отправляем запрос
-              type: 'PATCH', //тип запроса
-              data: {
-                quantity: +goodFromCart.quantity + 1
-              }, //отправляемые данные на сервер
-              success: function () {
-                //console.log('Response');//проверяем что ответ пришел
-                renderCart(); //перерисовываем корзину
-              }
-            })
-          
+          var goodFromCart = $('#cart .add-good[data-id="' + addGood.id + '"]').data(); //получим товар на который кликнули
+          $.ajax({ //отправляем пост запрос, чтобы на сервере создать товары в корзине// в файл db.json будет записан товар в массив cart
+            url: 'http://localhost:3000/cart/' + addGood.id, //на какой адрес отправляем запрос
+            type: 'PATCH', //тип запроса
+            data: {
+              quantity: +goodFromCart.quantity + 1
+            }, //отправляемые данные на сервер
+            success: function () {
+              //console.log('Response');//проверяем что ответ пришел
+              renderCart(); //перерисовываем корзину
+            }
+          })
         });
 
         ///////////////////////кнопка удалить товар в корзине
@@ -174,7 +188,7 @@
 
         //кнопка очистить в корзине
         $('#cart').on('click', '.clear', function () { //подписываемся на клик по кнопке clear
-          $('#cart .remove').each(function (idx, value) { //перебераем все товары в корзине
+          $('#cart .reduce-good').each(function (idx, value) { //перебераем все товары в корзине
             var good = $(value).data();
             $.ajax({
               url: 'http://localhost:3000/cart/' + good.id,
@@ -184,7 +198,7 @@
           });
         });
 
-          //Кнопка купить в листинге
+        //Кнопка купить в листинге
         // $('.buy').on('click',function() {//подписываемся на клики по кнопкам
         //не сработает, потому что событие навешивается рано - до того как будет получен ответ с json-servera и эти кнопки прорисуются в dom
         // console.log('Clicked');
@@ -195,8 +209,8 @@
           good.quantity = 1; //добавлем количество
 
           //проверяем наличие товара в корзине
-          if ($('#cart .remove[data-id="' + good.id + '"]').length) { //если есть кнопка с классом remove и атрибутом data-id, длина возвращаемого объекта
-            var goodFromCart = $('#cart .remove[data-id="' + good.id + '"]').data(); //получим товар на который кликнули
+          if ($('#cart .reduce-good[data-id="' + good.id + '"]').length) { //если есть кнопка с классом remove и атрибутом data-id, длина возвращаемого объекта
+            var goodFromCart = $('#cart .reduce-good[data-id="' + good.id + '"]').data(); //получим товар на который кликнули
             $.ajax({ //отправляем пост запрос, чтобы на сервере создать товары в корзине// в файл db.json будет записан товар в массив cart
               url: 'http://localhost:3000/cart/' + good.id, //на какой адрес отправляем запрос
               type: 'PATCH', //тип запроса
@@ -221,17 +235,14 @@
           }
 
         });
-      });   
+      });
     })(jQuery);
   </script>
 </head>
 
 <body>
   <div id="goods"></div>
-  <div>
-    <h3>Cart</h3>
-    <div id="cart"></div>
-  </div>
+  <div id="cart"></div>
 </body>
 
 </html>
