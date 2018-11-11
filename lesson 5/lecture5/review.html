@@ -1,0 +1,127 @@
+<html>
+
+<head>
+  <title>Review</title>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+  <style>
+    label {
+    display: block;
+  }
+  </style>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script>
+    function renderReviewList() { //прорисовка отзывов на странице
+      $('#reviews-list').empty(); //очистка
+      $.ajax({
+        url: 'http://localhost:3000/reviews', //на какой адрес отправляем запрос
+        type: 'GET', //тип запроса
+        success: function (reviews) { //подписываемся на результат запроса
+          //начинаем генерировать отзывы
+          var $ul = $('<ul />'); //создаем список, вторым пораметром можно указать атрибуты
+
+          reviews.forEach(function (review) { //перебераем отзывы
+            var $li = $('<li />', { //создаем отзыв
+              text: review.name +' '+ review.message +' '+ review.rate,
+            });
+            var $buttonRemove = $('<button />', { //создаем кнопку удалить
+              text: 'Удалить',
+              class: 'remove-review',
+              'data-id': review.id,              
+            });
+
+            if (review.approved == 0) {
+            var $buttonApproved = $('<button />', { //создаем кнопку одобрить
+              text: 'Одобрить',
+              class: 'approved',
+              'data-id': review.id, 
+              'data-approved': review.approved,            
+            });
+          }
+
+            $li.append($buttonRemove);
+            $li.append($buttonApproved);
+            $ul.append($li);
+          });
+          $('#reviews-list').append($ul);
+        }
+      });
+    }
+
+
+    //запуск
+    (function ($) {
+      $(function () {
+        renderReviewList();
+
+        //Кнопка отправить
+        $('#submit').on('click',function(e) {//подписываемся на клики по кнопкам
+          e.preventDefault();
+
+          var dataReviews = {
+          name: $("#name").val(),
+          message: $("#message").val(),
+          rate: $("#rate").val(),
+          approved: 0
+          }
+          
+          
+
+        $.ajax({ //отправляем пост запрос, чтобы на сервере создать отзыв// в файл db.json будет записан отзыв в массив review
+                url: 'http://localhost:3000/reviews', //на какой адрес отправляем запрос
+                type: 'POST', //тип запроса
+                data: dataReviews, //отправляем данные на сервер
+                success: function () {
+                  renderReviewList(); //перерисовываем корзину
+                }
+              })
+          })
+
+          //кнопка удалить
+          $('#reviews-list').on('click', '.remove-review', function () { //подписываемся на клик по кнопке remove-review
+          //получаем data кнопки
+          var removeReview = $(this).data();
+          $.ajax({
+            url: 'http://localhost:3000/reviews/' + removeReview.id,
+            type: 'DELETE',
+            success: function () {
+              renderReviewList();
+            }
+          });
+        });
+
+        //кнопка одобрить
+        $('#reviews-list').on('click', '.approved', function () { //подписываемся на клик по кнопке одобрить
+          
+          var approved = $(this).data();
+        
+          $.ajax({
+            url: 'http://localhost:3000/reviews/' + approved.id, //на какой адрес отправляем запрос
+            type: 'PATCH', //тип запроса
+            data: {
+              approved: 1
+            }, //отправляемые данные на сервер
+            success: function () {              
+              renderReviewList();
+            }
+          })
+        });
+        
+      });
+    })(jQuery);
+  </script>
+</head>
+
+<body>
+  <div id="review">
+    <form method="POST" name="review">
+      <label class="form-field" for="name">Имя<input type="text" id="name" name="name" /></label>
+      <label class="form-field" for="message">Сообщение<input type="text" id="message" name="message" /></label>
+      <label class="form-field" for="rate">Оценка<input type="text" id="rate" name="rate" /></label>
+
+      <input type="submit" id="submit" value="Отправить">
+    </form>
+  </div>
+  <div id="reviews-list"></div>
+</body>
+
+</html>

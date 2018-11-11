@@ -5,7 +5,7 @@ node_modules/
 # next.js build output
 .next
 dist/
-.idea
+.idea/
 *.iml
 lesson 5/js2-27.09/.idea/misc.xml
 lesson 5/js2-27.09/.idea/modules.xml

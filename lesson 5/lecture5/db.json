@@ -16,5 +16,28 @@
       "name": "Груши",
       "amount": 200
     }
+  ],
+  "reviews": [
+    {
+      "id": 1,
+      "name": "Алексей",
+      "message": "Все плохо",
+      "rate": 5,
+      "approved": 1
+    },
+    {
+      "id": 2,
+      "name": "Андрей",
+      "message": "Все плохо",
+      "rate": 5,
+      "approved": 0
+    },
+    {
+      "id": 3,
+      "name": "Александр",
+      "message": "Все плохо",
+      "rate": 5,
+      "approved": 0
+    }
   ]
 }

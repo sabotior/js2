@@ -1,3 +1,11 @@
-# Запуск:
-static .
+#установка сервера
+npm i -g node-static
+
+#запуск сервера в текущей папке
+static ./
+
+#установка json сервера
+npm i -g json-server
+
+#запуск json сервера подключение файла json
 json-server db.json
